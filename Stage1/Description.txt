@@ -1,0 +1,9 @@
+None of the images that were assigned to me exhibited the Standard Behavior.
+
+For this reason, to work with various filters I have chosen the first picture in the FEI database.
+
+RESULTS:
+
+Both Minimum and Maximum filters ended up providing undesired effects.
+The most effective filter for trying to remove insignificant details and smoothen prominent regions is Gaussian Blur. 
+Gaussian Blur can be used on its own as well as in a combination with Median and Mean filters.
