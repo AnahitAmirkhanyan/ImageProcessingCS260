@@ -16,9 +16,9 @@ public class Cumulative_Histogram_RGB implements PlugInFilter {
         //ip.invert();
         Color color;
         // three arrays for R G B histograms 
-        int histogram_red[] = new int[256];
-        int histogram_green[] = new int[256];
-        int histogram_blue[] = new int[256];
+        double histogram_red[] = new double[256];
+        double histogram_green[] = new double[256];
+        double histogram_blue[] = new double[256];
         int r, g, b;
         for(int i = 0; i < ip.getHeight(); i++){
             for(int j = 0; j < ip.getWidth(); j++){
@@ -33,9 +33,9 @@ public class Cumulative_Histogram_RGB implements PlugInFilter {
             }
         }
 
-        int [] cumulative_red = new int[256];
-        int [] cumulative_green = new int[256];
-        int [] cumulative_blue = new int[256];
+        double [] cumulative_red = new double[256];
+        double [] cumulative_green = new double[256];
+        double [] cumulative_blue = new double[256];
 
         for(int i = 0; i < 256; i++){
             if(i == 0){

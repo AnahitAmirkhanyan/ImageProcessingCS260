@@ -18,9 +18,9 @@ public class Cumulative_Histogram_HSV implements PlugInFilter {
 
         // three arrays for H, S, and V channels
 
-        int[] hist_h = new int[256];
-        int[] hist_s = new int[256];
-        int[] hist_v = new int[256];
+        double[] hist_h = new double[256];
+        double[] hist_s = new double[256];
+        double[] hist_v = new double[256];
 
         
         double r, g , b, h, s, v, cmax, cmin, diff;
@@ -74,9 +74,9 @@ public class Cumulative_Histogram_HSV implements PlugInFilter {
             }
         }
 
-        int [] cumulative_h = new int[256];
-        int [] cumulative_s = new int[256];
-        int [] cumulative_v = new int[256];
+        double [] cumulative_h = new double[256];
+        double [] cumulative_s = new double[256];
+        double [] cumulative_v = new double[256];
 
         for(int i = 0; i < 256; i++){
             if(i == 0){
@@ -91,19 +91,30 @@ public class Cumulative_Histogram_HSV implements PlugInFilter {
             }
         }
 
+        double[] norm_cum_h = new double[256];
+        double[] norm_cum_s = new double[256];
+        double[] norm_cum_v = new double[256];
+
+        for(int i = 0; i < 256; i++){
+            norm_cum_h[i] = cumulative_h[i]/(ip.getWidth()*ip.getHeight());
+            norm_cum_s[i] = cumulative_s[i]/(ip.getWidth()*ip.getHeight());
+            norm_cum_v[i] = cumulative_v[i]/(ip.getWidth()*ip.getHeight());
+        }
+
+
         IJ.log("H");
         for(int i = 0; i < 256; i++){
-            IJ.log(String.valueOf(cumulative_h[i]));
+            IJ.log(String.valueOf(norm_cum_h[i]));
         }
 
         IJ.log("S");
         for(int i = 0; i < 256; i++){
-            IJ.log(String.valueOf(cumulative_s[i]));
+            IJ.log(String.valueOf(norm_cum_s[i]));
         }
 
         IJ.log("V");
         for(int i = 0; i < 256; i++){
-            IJ.log(String.valueOf(cumulative_v[i]));
+            IJ.log(String.valueOf(norm_cum_v[i]));
         }
 	}
 
