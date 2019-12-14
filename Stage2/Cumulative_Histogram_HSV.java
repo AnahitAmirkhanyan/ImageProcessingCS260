@@ -28,7 +28,7 @@ public class Cumulative_Histogram_HSV implements PlugInFilter {
         h = 0;
         for(int i = 0; i < ip.getHeight(); i++){
             for(int j = 0; j < ip.getWidth(); j++){
-                color = new Color(ip.getPixel(i,j));
+                color = new Color(ip.getPixel(j,i));
                 r = color.getRed();
                 g = color.getGreen();
                 b = color.getBlue();

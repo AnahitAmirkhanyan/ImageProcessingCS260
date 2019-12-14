@@ -22,7 +22,7 @@ public class Cumulative_Histogram_RGB implements PlugInFilter {
         int r, g, b;
         for(int i = 0; i < ip.getHeight(); i++){
             for(int j = 0; j < ip.getWidth(); j++){
-                color = new Color(ip.getPixel(i,j));
+                color = new Color(ip.getPixel(j,i));
                 r = color.getRed();
                 g = color.getGreen();
                 b = color.getBlue();
