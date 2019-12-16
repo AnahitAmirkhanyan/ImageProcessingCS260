@@ -4,13 +4,85 @@ import ij.gui.*;
 import java.awt.*;
 import ij.plugin.filter.*;
 
-public class Calibrate implements PlugInFilter {
+public class Calibrate_HSV implements PlugInFilter {
 	ImagePlus imp;
 
 	public int setup(String arg, ImagePlus imp) {
 		this.imp = imp;
 		return DOES_ALL;
-	}
+    }
+    
+    public int[] rgbtohsv(double r, double g, double b){
+        double h, s, v, cmax, cmin, diff;
+        int h1, s1, v1;
+        r = r/255.0;
+        g = g/255.0;
+        b = b/255.0;
+        cmax = Math.max(Math.max(r, g), b);
+        cmin = Math.min(Math.min(r, g), b);
+        diff = cmax - cmin;
+        h = 0;
+        if(cmax == cmin) h = 0;
+        else if(cmax == r){
+            h = (60 * ((g - b) / diff) + 360) % 360;
+        }
+        else if(cmax == g){
+            h = (60 * ((b - r) / diff) + 120) % 360;
+        }
+        else if(cmax == b){
+            h = (60 * ((r - g) / diff) + 240) % 360;
+        }
+
+        if(cmax == 0){
+            s = 0;
+        }
+        else{
+            s = (diff / cmax) * 100;
+        }
+
+        v = cmax * 100;
+        // array out of bounds because of rounding number
+        if((int)Math.round(h) >= 360) h1 = 359;
+        else h1 = (int)Math.round(h);
+
+        if((int)Math.round(s) >= 100) s1 = 99;
+        else s1 = (int)Math.round(s);
+
+        if((int)Math.round(v) >= 100) v1 = 99;
+        else v1 = (int)Math.round(v);
+
+        int [] hsv = {h1, s1, v1};
+
+        return hsv;
+    }
+
+    public int[] hsvtorgb(int hh, int ss, int vv){
+        double h = hh/360.0;
+        double s = ss/100.0;
+        double v = vv/100.0;
+        
+        double r = 0; 
+        double g = 0; 
+        double b = 0;
+    
+        int i = (int)(Math.floor(h * 6));
+        double f = h * 6 - i;
+        double p = v * (1 - s);
+        double q = v * (1 - f * s);
+        double t = v * (1 - (1 - f) * s);
+    
+      switch (i % 6) {
+        case 0: r = v; g = t; b = p; break;
+        case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break;
+        case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break;
+        case 5: r = v; g = p; b = q; break;
+      }
+      
+      int [] colors = {(int)Math.round(r*255), (int)Math.round(g*255), (int)Math.round(b*255)};
+      return colors;
+    }
 
 	public void run(ImageProcessor ip) {
         //ip.invert();
@@ -27,9 +99,9 @@ public class Calibrate implements PlugInFilter {
         double[] hist_s = new double[100];
         double[] hist_v = new double[100];
 
-        
+        // compute hsv historgram of current image
         double r, g , b, h, s, v, cmax, cmin, diff;
-        int h_i, s_i, v_i;
+        int[] hsv;
         h = 0;
         for(int i = 0; i < ip.getHeight(); i++){
             for(int j = 0; j < ip.getWidth(); j++){
@@ -37,40 +109,10 @@ public class Calibrate implements PlugInFilter {
                 r = color.getRed();
                 g = color.getGreen();
                 b = color.getBlue();
-
-                // convert RGB to HSV
-                r = r/255.0;
-                g = g/255.0;
-                b = b/255.0;
-                cmax = Math.max(Math.max(r, g), b);
-                cmin = Math.min(Math.min(r, g), b);
-                diff = cmax - cmin;
-                
-                if(cmax == cmin) h = 0;
-                else if(cmax == r){
-                    h = (60 * ((g - b) / diff) + 360) % 360;
-                }
-                else if(cmax == g){
-                    h = (60 * ((b - r) / diff) + 120) % 360;
-                }
-                else if(cmax == b){
-                    h = (60 * ((r - g) / diff) + 240) % 360;
-                }
-
-                if(cmax == 0){
-                    s = 0;
-                }
-                else{
-                    s = (diff / cmax) * 100;
-                }
-
-                v = cmax * 100;
-
-                h_i = (int)Math.round(h); s_i = (int)Math.round(s); v_i = (int)Math.round(v);
-
-                hist_h[h_i]++;
-                hist_s[s_i]++;
-                hist_v[v_i]++;
+                hsv = rgbtohsv(r, g, b);
+                hist_h[hsv[0]]++;
+                hist_s[hsv[1]]++;
+                hist_v[hsv[2]]++;
 
             }
         }
@@ -112,30 +154,39 @@ public class Calibrate implements PlugInFilter {
         }
 
         // now we shall embark upon teh calibration AT LONG LAST
+        int h_act, s_act, v_act, h_new, s_new, v_new;
         for(int i = 0; i < ip.getHeight(); i++){
             for(int j = 0; j < ip.getWidth(); j++){
                 color = new Color(ip.getPixel(j,i));
                 r = color.getRed();
                 g = color.getGreen();
                 b = color.getBlue();
+
+                 // convert RGB to HSV
+                 // at this point i should have made it into a function since i am copy pasting the same thing for the third time
+                 // i'm sorry
+
+                hsv = rgbtohsv(r, g, b);
+                h_act = hsv[0]; s_act = hsv[1]; v_act = hsv[2];
+
+                h_new = 359;
+                while(norm_cum_h[h_act] < bm_h[h_new]){
+                    h_new--;
+                    if(h_new == 0) break;
+                }
+                s_new = 99;
+                while(norm_cum_s[s_act] < bm_s[s_new]){
+                    s_new--;
+                    if(s_new == 0) break;
+                }
+                v_new = 99;
+                while(norm_cum_v[v_act] < bm_v[v_new]){
+                    v_new--;
+                    if(v_new == 0) break;
+                }
                 
-                r_new = 255;
-                while(norm_cum_red[r] < bm_red[r_new]){
-                    r_new--;
-                    if(r_new == 0) break;
-                }
-                g_new = 255;
-                while(norm_cum_green[g] < bm_green[g_new]){
-                    g_new--;
-                    if(g_new == 0) break;
-                }
-                b_new = 255;
-                while(norm_cum_blue[b] < bm_blue[b_new]){
-                    b_new--;
-                    if(b_new == 0) break;
-                }
-                
-                int[] colors = {r_new, g_new, b_new};
+                // have to convert back to rgb in order to putPixel as there seems to be no other way
+                int[] colors = hsvtorgb(h_new, s_new, v_new);
 
                 ip.putPixel(j,i, colors);
 
