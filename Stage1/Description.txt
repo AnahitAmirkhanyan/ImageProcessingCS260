@@ -7,3 +7,5 @@ RESULTS:
 Both Minimum and Maximum filters ended up providing undesired effects.
 The most effective filter for trying to remove insignificant details and smoothen prominent regions is Gaussian Blur. 
 Gaussian Blur can be used on its own as well as in a combination with Median and Mean filters.
+
+Evidently, in the specific example with the first image, there are no considerable effects of head rotation and smile on how the binary filters work. 
