@@ -1,0 +1,7 @@
+In this stage we are getting the benchmark histogram from the picture which exhibited Standard Behavior.
+
+First for RGB channels, and later for HSV, we get their respective histograms, and then use them to calibrate the histograms of the remaining pictures which DO NOT exhibit standard behavior.
+
+After matching the histogram, and applying the binary filters on these newly calibrated pictures, it's evident that there is noticeable improvement in the way that the binary regions are extracted.
+
+Please see folders Calibrated dataset (HSV) and Calibrated dataset (RGB) for the calibrated pictures with their respective binary layers.
